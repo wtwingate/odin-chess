@@ -1,0 +1,85 @@
+* Chess
+
+** Links
+- [[https://en.wikipedia.org/wiki/Rules_of_chess][Rules of Chess]]
+- [[https://en.wikipedia.org/wiki/Chess_notation][Chess Notation]]
+- [[https://www.chessprogramming.org/Main_Page][Chess Programming Wiki]]
+
+** Requirements
+- Follow all the rules of chess
+- Enter moves using algebraic notation
+- Keep running history of moves
+- Export, save, and load history
+
+** Notes
+
+*** Board State
+
+The most important decision to make at the beginning is what data
+structure to use for the board. The chess board is represented as a grid
+of 64 squares with ranks (rows) and files (columns) like so:
+
++----+----+----+----+----+----+----+----+
+| h1 | h2 | h3 | h4 | h5 | h6 | h7 | h8 |
++----+----+----+----+----+----+----+----+
+| g1 | g2 | g3 | g4 | g5 | g6 | g7 | g8 |
++----+----+----+----+----+----+----+----+
+| f1 | f2 | f3 | f4 | f5 | f6 | f7 | f8 |
++----+----+----+----+----+----+----+----+
+| e1 | e2 | e3 | e4 | e5 | e6 | e7 | e8 |
++----+----+----+----+----+----+----+----+
+| d1 | d2 | d3 | d4 | d5 | d6 | d7 | d8 |
++----+----+----+----+----+----+----+----+
+| c1 | c2 | c3 | c4 | c5 | c6 | c7 | c8 |
++----+----+----+----+----+----+----+----+
+| b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 |
++----+----+----+----+----+----+----+----+
+| a1 | a2 | a3 | a4 | a5 | a6 | a7 | a8 |
++----+----+----+----+----+----+----+----+
+
+We could use a 2D array to represent the board so that we index into
+each square with [rank][file], or we could place all 64 squares in a
+single array and index into them like so:
+
++----+----+----+----+----+----+----+----+
+| 56 | 57 | 58 | 59 | 60 | 61 | 62 | 63 |
++----+----+----+----+----+----+----+----+
+| 48 | 49 | 50 | 51 | 52 | 53 | 54 | 55 |
++----+----+----+----+----+----+----+----+
+| 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47 |
++----+----+----+----+----+----+----+----+
+| 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 |
++----+----+----+----+----+----+----+----+
+| 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 |
++----+----+----+----+----+----+----+----+
+| 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 |
++----+----+----+----+----+----+----+----+
+| 08 | 09 | 10 | 11 | 12 | 13 | 14 | 15 |
++----+----+----+----+----+----+----+----+
+| 00 | 01 | 02 | 03 | 04 | 05 | 06 | 07 |
++----+----+----+----+----+----+----+----+
+
+Using a single array for our squares allows us to iterate through all
+the squares and calculate moves a bit more efficiently, at the cost of a
+little mental overhead. The movement offsets are as follows, and can be
+easily extended for pieces with "ray" attack types (e.g rook, bishop).
+
++----+----+----+
+| +7 | +8 | +9 |
++----+----+----+
+| -1 | XX | +1 |
++----+----+----+
+| -9 | -8 | -7 |
++----+----+----+
+
+*** Input & Notation
+
+[[https://www.chessprogramming.org/Algebraic_Chess_Notation][Algebraic Chess Notation]]
+
+Input will need to be able to parse standard Algebraic Notation in both
+its short and long forms. It will need to be able to detect possible
+ambiguities in the input and raise an appropriate error.
+
+For our internal representation of the history, we'll use a subset
+called Pure Coordinate Notation, perhaps as specified in the Universal
+Chess Interface (UCI) protocol.
