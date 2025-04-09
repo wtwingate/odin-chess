@@ -1,5 +1,9 @@
-require_relative 'coordinates'
+# frozen_string_literal: true
 
+require_relative "coordinates"
+
+# This class implements algorithms for calculating all the pseudo-legal
+# moves available to each Chess piece given the current board state.
 class MoveGenerator
   def initialize(board)
     @board = board
@@ -47,11 +51,11 @@ class MoveGenerator
   private
 
   def on_the_board(coords)
-    coords >= 0 && coords <= 63
+    coords.between?(0, 63)
   end
 
   def no_wrap(coords, move)
-    ((coords % 8) - (move % 8)).abs < 2
+    ((coords % 8) - (move % 8)).abs <= 2
   end
 
   def no_friendly_fire(piece, move)

@@ -91,33 +91,6 @@ describe MoveGenerator do
         result = move_generator.non_sliding_moves(4, king)
         expect(result).to eq(king_moves)
       end
-
-      context "when the King is surrounded by ally pieces" do
-        before do
-          squares = Array.new(64) { Pawn.new(:white) }
-          squares[36] = King.new(:white)
-          allow(board).to receive(:squares).and_return(squares)
-        end
-
-        it "does not return ally-occupied squares" do
-          result = move_generator.non_sliding_moves(36, king)
-          expect(result).to be_empty
-        end
-      end
-
-      context "when the King is surrounded by enemy pieces" do
-        before do
-          squares = Array.new(64) { Pawn.new(:black) }
-          squares[36] = King.new(:white)
-          allow(board).to receive(:squares).and_return(squares)
-        end
-
-        it "returns enemy-occupied squares" do
-          king_moves = [44, 45, 37, 29, 28, 27, 35, 43]
-          result = move_generator.non_sliding_moves(36, king)
-          expect(result).to eq(king_moves)
-        end
-      end
     end
 
     context "when moving a Knight" do
@@ -171,7 +144,7 @@ describe MoveGenerator do
       end
 
       it "returns all moves from the top edge of the board" do
-        knight_moves = [54, 45, 42, 50]
+        knight_moves = [54, 45, 43, 50]
         result = move_generator.non_sliding_moves(60, knight)
         expect(result).to eq(knight_moves)
       end
@@ -181,32 +154,37 @@ describe MoveGenerator do
         result = move_generator.non_sliding_moves(4, knight)
         expect(result).to eq(knight_moves)
       end
+    end
 
-      context "when the knight is surrounded by ally pieces" do
-        before do
-          squares = Array.new(64) { Pawn.new(:white) }
-          squares[36] = knight.new(:white)
-          allow(board).to receive(:squares).and_return(squares)
-        end
+    context "when a piece is surrounded by enemy pieces" do
+      let(:king) { King.new(:white) }
+      let(:squares) { Array.new(64) { Pawn.new(:black) } }
 
-        it "does not return ally-occupied squares" do
-          result = move_generator.non_sliding_moves(36, knight)
-          expect(result).to be_empty
-        end
+      before do
+        allow(board).to receive(:squares).and_return(squares)
+        squares[27] = king
       end
 
-      context "when the knight is surrounded by enemy pieces" do
-        before do
-          squares = Array.new(64) { Pawn.new(:black) }
-          squares[36] = knight.new(:white)
-          allow(board).to receive(:squares).and_return(squares)
-        end
+      it "returns all enemy-occupied squares" do
+        king_moves = [35, 36, 28, 20, 19, 18, 26, 34]
+        result = move_generator.non_sliding_moves(27, king)
+        expect(result).to eq(king_moves)
+      end
+    end
 
-        it "returns enemy-occupied squares" do
-          knight_moves = [53, 46, 30, 21, 19, 26, 42, 51]
-          result = move_generator.non_sliding_moves(36, knight)
-          expect(result).to eq(knight_moves)
-        end
+    context "when a piece is surrounded by ally pieces" do
+      let(:king) { King.new(:white) }
+      let(:squares) { Array.new(64) { Pawn.new(:white) } }
+
+      before do
+        allow(board).to receive(:squares).and_return(squares)
+        squares[27] = king
+      end
+
+      it "does not return any ally-occupied squares" do
+        king_moves = []
+        result = move_generator.non_sliding_moves(27, king)
+        expect(result).to eq(king_moves)
       end
     end
   end

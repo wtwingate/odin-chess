@@ -74,6 +74,6 @@ module Coordinates
     E1, E2, E3, E4, E5, E6, E7, E8,
     F1, F2, F3, F4, F5, F6, F7, F8,
     G1, G2, G3, G4, G5, G6, G7, G8,
-    H1, H2, H3, H4, H5, H6, H7, H8,
+    H1, H2, H3, H4, H5, H6, H7, H8
   ].freeze
 end

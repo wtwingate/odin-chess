@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../lib/piece'
+require_relative "../lib/piece"
 
 # This class represents the King chess piece.
 class King < Piece
