@@ -55,6 +55,8 @@ require_relative "coordinates"
 class Board
   include Coordinates
 
+  attr_reader :squares
+
   def initialize
     @squares = initial_position
   end
