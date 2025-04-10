@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "colorize"
-require_relative "coordinates"
 
 # This class represents a chessboard as a one-dimenstional array of
 # squares and provides methods for printing it to the console.
@@ -11,50 +10,50 @@ require_relative "coordinates"
 # ranks are numbered 1-8, and the files are lettered a-h, like so:
 #
 #    +----+----+----+----+----+----+----+----+
-#    | h1 | h2 | h3 | h4 | h5 | h6 | h7 | h8 |
+#    | a8 | b8 | c8 | d8 | e8 | f8 | g8 | h8 |
 #    +----+----+----+----+----+----+----+----+
-#    | g1 | g2 | g3 | g4 | g5 | g6 | g7 | g8 |
+#    | a7 | b7 | c7 | d7 | e7 | f7 | g7 | h7 |
 #    +----+----+----+----+----+----+----+----+
-#    | f1 | f2 | f3 | f4 | f5 | f6 | f7 | f8 |
+#    | a6 | b6 | c6 | d6 | e6 | f6 | g6 | h6 |
 #    +----+----+----+----+----+----+----+----+
-#    | e1 | e2 | e3 | e4 | e5 | e6 | e7 | e8 |
+#    | a5 | b5 | c5 | d5 | e5 | f5 | g5 | h5 |
 #    +----+----+----+----+----+----+----+----+
-#    | d1 | d2 | d3 | d4 | d5 | d6 | d7 | d8 |
+#    | a4 | b4 | c4 | d4 | e4 | f4 | g4 | h4 |
 #    +----+----+----+----+----+----+----+----+
-#    | c1 | c2 | c3 | c4 | c5 | c6 | c7 | c8 |
+#    | a3 | b3 | c3 | d3 | e3 | f3 | g3 | h3 |
 #    +----+----+----+----+----+----+----+----+
-#    | b1 | b2 | b3 | b4 | b5 | b6 | b7 | b8 |
+#    | a2 | b2 | c2 | d2 | e2 | f2 | g2 | h2 |
 #    +----+----+----+----+----+----+----+----+
-#    | a1 | a2 | a3 | a4 | a5 | a6 | a7 | a8 |
+#    | a1 | b1 | c1 | d1 | e1 | f1 | g1 | h1 |
 #    +----+----+----+----+----+----+----+----+
 #
-# In the array, the coordinates a1...h8 corresponds to indexes 0...63,
-# as illustrated below:
+#
+# This uses an array with 128 elements to represent the board. Only
+# half of the indexes represent valid board positions; the other half
+# are used for out-of-bounds checks.
 #
 #    +----+----+----+----+----+----+----+----+
-#    | 56 | 57 | 58 | 59 | 60 | 61 | 62 | 63 |
+#    | 70 | 71 | 72 | 73 | 74 | 75 | 76 | 77 | 78 79 7A 7B 7C 7D 7E 7F
 #    +----+----+----+----+----+----+----+----+
-#    | 48 | 49 | 50 | 51 | 52 | 53 | 54 | 55 |
+#    | 60 | 61 | 62 | 63 | 64 | 65 | 66 | 67 | 68 69 6A 6B 6C 6D 6E 6F
 #    +----+----+----+----+----+----+----+----+
-#    | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47 |
+#    | 50 | 51 | 52 | 53 | 54 | 55 | 56 | 57 | 58 59 5A 5B 5C 5D 5E 5F
 #    +----+----+----+----+----+----+----+----+
-#    | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 |
+#    | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47 | 48 49 4A 4B 4C 4D 4E 4F
 #    +----+----+----+----+----+----+----+----+
-#    | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 |
+#    | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 39 3A 3B 3C 3D 3E 3F
 #    +----+----+----+----+----+----+----+----+
-#    | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 |
+#    | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 29 2A 2B 2C 2D 2E 2F
 #    +----+----+----+----+----+----+----+----+
-#    | 08 | 09 | 10 | 11 | 12 | 13 | 14 | 15 |
+#    | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 19 1A 1B 1C 1D 1E 1F
 #    +----+----+----+----+----+----+----+----+
-#    | 00 | 01 | 02 | 03 | 04 | 05 | 06 | 07 |
+#    | 00 | 01 | 02 | 03 | 04 | 05 | 06 | 07 | 08 09 0A 0B 0C 0D 0E 0F
 #    +----+----+----+----+----+----+----+----+
 #
 # Using a one-dimenstional array like this for our squares allows us to
 # iterate through all the squares and calculate moves a bit more
 # efficiently, at the cost of a little mental overhead.
 class Board
-  include Coordinates
-
   attr_reader :squares
 
   def initialize
@@ -87,14 +86,14 @@ class Board
   # rubocop: disable Metrics
   def initial_position
     layout = [
-      "R N B Q K B N R",
-      "P P P P P P P P",
-      ". . . . . . . .",
-      ". . . . . . . .",
-      ". . . . . . . .",
-      ". . . . . . . .",
-      "p p p p p p p p",
-      "r n b q k b n r"
+      "R N B Q K B N R . . . . . . . .",
+      "P P P P P P P P . . . . . . . .",
+      ". . . . . . . . . . . . . . . .",
+      ". . . . . . . . . . . . . . . .",
+      ". . . . . . . . . . . . . . . .",
+      ". . . . . . . . . . . . . . . .",
+      "p p p p p p p p . . . . . . . .",
+      "r n b q k b n r . . . . . . . ."
     ]
 
     tokens = layout.flat_map(&:split)

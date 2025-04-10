@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "piece"
+
 # This class represents the Pawn chess piece.
 class Pawn < Piece
   def ascii

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "coordinates"
-
 # This class implements algorithms for calculating all the pseudo-legal
 # moves available to each Chess piece given the current board state.
 class MoveGenerator
@@ -12,56 +10,54 @@ class MoveGenerator
   def pseudo_legal_moves
     moves = {}
 
-    Coordinates::ALL.each do |coords|
-      piece = @board.squares[coords]
-      next unless piece
+    @board.squares.each_with_index do |square, index|
+      next unless on_the_board?(index) && square
 
-      moves[coords] = calculate_moves(coords, piece)
+      moves[index] = calculate_moves(square, index)
     end
 
     moves
   end
 
-  def calculate_moves(coords, piece)
+  def calculate_moves(piece, index)
     case piece
     when Queen, Rook, Bishop
-      sliding_moves(coords, piece)
+      sliding_moves(piece, index)
     when King, Knight
-      non_sliding_moves(coords, piece)
+      non_sliding_moves(piece, index)
     when Pawn
-      pawn_moves(coords, piece)
+      pawn_moves(piece, index)
     end
   end
 
-  def sliding_moves(coords, piece)
+  def sliding_moves(piece, index)
     # TODO
   end
 
-  def non_sliding_moves(coords, piece)
-    moves = piece.moveset.map { |delta| coords + delta }
-    moves.select do |move|
-      on_the_board(move) && no_wrap(coords, move) && no_friendly_fire(piece, move)
+  def non_sliding_moves(piece, index)
+    next_indexes = piece.moveset.map { |delta| index + delta }
+    next_indexes.select do |next_index|
+      on_the_board?(next_index) && can_target?(piece, next_index)
     end
   end
 
-  def pawn_moves(coords, piece)
+  def pawn_moves(piece, position)
     # TODO
   end
 
   private
 
-  def on_the_board(coords)
-    coords.between?(0, 63)
+  # Using an array with 128 indexes enables this clever little method
+  # to check for out-of-bounds indexes. For more information, check out
+  # https://www.chessprogramming.org/0x88
+  def on_the_board?(index)
+    index.nobits?(0x88)
   end
 
-  def no_wrap(coords, move)
-    ((coords % 8) - (move % 8)).abs <= 2
-  end
+  def can_target?(piece, index)
+    target = @board.squares[index]
+    return true if target.nil?
 
-  def no_friendly_fire(piece, move)
-    target = @board.squares[move]
-    return true unless target
-
-    piece.color != target.color
+    target.color != piece.color
   end
 end

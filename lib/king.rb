@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require_relative "../lib/piece"
+require_relative "piece"
 
 # This class represents the King chess piece.
 class King < Piece
   def moveset
-    [+8, +9, +1, -7, -8, -9, -1, +7]
+    [0x10, 0x11, 0x01, -0x0F, -0x10, -0x11, -0x01, 0x0F]
   end
 
   def ascii

@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require_relative "piece"
+
 # This class represents the Bishop chess piece.
 class Bishop < Piece
   def moveset
-    [+9, -7, -9, +7]
+    [0x11, -0x0F, -0x11, 0x0F]
   end
 
   def ascii

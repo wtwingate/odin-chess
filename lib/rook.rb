@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require_relative "piece"
+
 # This class represents the Queen chess piece.
 class Rook < Piece
   def moveset
-    [+8, +1, -8, -1]
+    [0x10, 0x01, -0x10, -0x01]
   end
 
   def ascii
