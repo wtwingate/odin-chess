@@ -63,7 +63,7 @@ class Board
   def ascii_print
     7.downto(0).each do |rank|
       0.upto(7).each do |file|
-        piece = @squares[(rank * 8) + file]
+        piece = @squares[(rank * 16) + file]
         print "#{piece ? piece.ascii : '.'} "
       end
       print "\n"
@@ -73,7 +73,7 @@ class Board
   def unicode_print
     7.downto(0).each do |rank|
       0.upto(7).each do |file|
-        piece = @squares[(rank * 8) + file]
+        piece = @squares[(rank * 16) + file]
         print "#{piece ? piece.unicode : ' '} "
           .colorize(color: :black, background: square_color(rank, file))
       end
