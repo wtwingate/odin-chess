@@ -225,7 +225,7 @@ describe MoveGenerator do
 
       it "returns all attackable enemy-occupied squares" do
         queen_moves = [E5, F5, F4, F3, E3, D3, D4, D5]
-        result = move_generator.non_sliding_moves(queen, E4)
+        result = move_generator.sliding_moves(queen, E4)
         expect(result).to eq(queen_moves)
       end
     end
@@ -241,7 +241,7 @@ describe MoveGenerator do
 
       it "does not return any ally-occupied squares" do
         queen_moves = []
-        result = move_generator.non_sliding_moves(queen, E4)
+        result = move_generator.sliding_moves(queen, E4)
         expect(result).to eq(queen_moves)
       end
     end

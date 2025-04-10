@@ -11,7 +11,7 @@ class MoveGenerator
     moves = {}
 
     @board.squares.each_with_index do |square, index|
-      next unless on_the_board?(index) && square
+      next if square.nil?
 
       moves[index] = calculate_moves(square, index)
     end
@@ -33,17 +33,19 @@ class MoveGenerator
   def sliding_moves(piece, index)
     piece.moveset.each_with_object([]) do |delta, next_indexes|
       next_index = index + delta
-      while on_the_board?(next_index) && can_target?(piece, next_index)
+      while can_move?(piece, next_index)
         next_indexes << next_index
+        break unless @board.squares[next_index].nil?
+
         next_index += delta
       end
     end
   end
 
   def non_sliding_moves(piece, index)
-    next_indexes = piece.moveset.map { |delta| index + delta }
-    next_indexes.select do |next_index|
-      on_the_board?(next_index) && can_target?(piece, next_index)
+    piece.moveset.each_with_object([]) do |delta, next_indexes|
+      next_index = index + delta
+      next_indexes << next_index if can_move?(piece, next_index)
     end
   end
 
@@ -53,6 +55,10 @@ class MoveGenerator
 
   private
 
+  def can_move?(piece, index)
+    on_the_board?(index) && empty_or_enemy?(piece, index)
+  end
+
   # Using an array with 128 indexes enables this clever little method
   # to check for out-of-bounds indexes. For more information, check out
   # https://www.chessprogramming.org/0x88
@@ -60,7 +66,7 @@ class MoveGenerator
     index.nobits?(0x88)
   end
 
-  def can_target?(piece, index)
+  def empty_or_enemy?(piece, index)
     target = @board.squares[index]
     return true if target.nil?
 
