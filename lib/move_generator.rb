@@ -10,42 +10,44 @@ class MoveGenerator
   def pseudo_legal_moves
     moves = {}
 
-    @board.squares.each_with_index do |square, index|
-      next if square.nil?
+    @board.squares.each_with_index do |piece, position|
+      next if piece.nil?
 
-      moves[index] = calculate_moves(square, index)
+      moves[position] = piece_moves(piece, position)
     end
 
     moves
   end
 
-  def calculate_moves(piece, index)
+  def piece_moves(piece, position)
     case piece
     when Queen, Rook, Bishop
-      sliding_moves(piece, index)
+      sliding_moves(piece, position)
     when King, Knight
-      non_sliding_moves(piece, index)
+      non_sliding_moves(piece, position)
     when Pawn
-      pawn_moves(piece, index)
+      pawn_moves(piece, position)
     end
   end
 
-  def sliding_moves(piece, index)
-    piece.moveset.each_with_object([]) do |delta, next_indexes|
-      next_index = index + delta
-      while can_move?(piece, next_index)
-        next_indexes << next_index
-        break unless @board.squares[next_index].nil?
+  def sliding_moves(piece, position)
+    piece.moveset.each_with_object([]) do |delta, next_positions|
+      next_position = position + delta
+      while targetable_square?(piece, next_position)
+        next_positions << next_position
+        break unless empty_square?(next_position)
 
-        next_index += delta
+        next_position += delta
       end
     end
   end
 
-  def non_sliding_moves(piece, index)
-    piece.moveset.each_with_object([]) do |delta, next_indexes|
-      next_index = index + delta
-      next_indexes << next_index if can_move?(piece, next_index)
+  def non_sliding_moves(piece, position)
+    piece.moveset.each_with_object([]) do |delta, next_positions|
+      next_position = position + delta
+      if targetable_square?(piece, next_position)
+        next_positions << next_position
+      end
     end
   end
 
@@ -55,10 +57,6 @@ class MoveGenerator
 
   private
 
-  def can_move?(piece, index)
-    on_the_board?(index) && empty_or_enemy?(piece, index)
-  end
-
   # Using an array with 128 indexes enables this clever little method
   # to check for out-of-bounds indexes. For more information, check out
   # https://www.chessprogramming.org/0x88
@@ -66,10 +64,22 @@ class MoveGenerator
     index.nobits?(0x88)
   end
 
-  def empty_or_enemy?(piece, index)
-    target = @board.squares[index]
-    return true if target.nil?
+  def targetable_square?(piece, position)
+    on_the_board?(position) &&
+      (empty_square?(position) || enemy_square?(piece, position))
+  end
 
+  def empty_square?(position)
+    @board.squares[position].nil?
+  end
+
+  def ally_square?(piece, position)
+    target = @board.squares[position]
+    target.color != piece.color
+  end
+
+  def enemy_square?(piece, position)
+    target = @board.squares[position]
     target.color != piece.color
   end
 end
