@@ -15,10 +15,242 @@ describe MoveGenerator do
 
   let(:board) { instance_double(Board) }
 
-  describe "#non-sliding-moves" do
+  describe "#sliding_moves" do
+    context "when moving a Queen" do
+      let(:queen) { Queen.new(:white) }
+      let(:squares) { Array.new(128) }
+
+      before do
+        allow(board).to receive(:squares).and_return(squares)
+      end
+
+      it "returns all moves from the middle of the board" do
+        queen_moves = [E5, E6, E7, E8, F5, G6, H7, F4, G4, H4, F3, G2, H1, E3,
+                       E2, E1, D3, C2, B1, D4, C4, B4, A4, D5, C6, B7, A8]
+        result = move_generator.sliding_moves(queen, E4)
+        expect(result).to eq(queen_moves)
+      end
+
+      it "returns all moves from the bottom-left-corner of the board" do
+        queen_moves = [A2, A3, A4, A5, A6, A7, A8, B2, C3, D4, E5, F6, G7, H8,
+                       B1, C1, D1, E1, F1, G1, H1]
+        result = move_generator.sliding_moves(queen, A1)
+        expect(result).to eq(queen_moves)
+      end
+
+      it "returns all moves from the bottom-right corner of the board" do
+        queen_moves = [H2, H3, H4, H5, H6, H7, H8, G1, F1, E1, D1, C1, B1, A1,
+                       G2, F3, E4, D5, C6, B7, A8]
+        result = move_generator.sliding_moves(queen, H1)
+        expect(result).to eq(queen_moves)
+      end
+
+      it "returns all moves from the top-left corner of the board" do
+        queen_moves = [B8, C8, D8, E8, F8, G8, H8, B7, C6, D5, E4, F3, G2, H1,
+                       A7, A6, A5, A4, A3, A2, A1]
+        result = move_generator.sliding_moves(queen, A8)
+        expect(result).to eq(queen_moves)
+      end
+
+      it "returns all moves from the top-right corner of the board" do
+        queen_moves = [H7, H6, H5, H4, H3, H2, H1, G7, F6, E5, D4, C3, B2, A1,
+                       G8, F8, E8, D8, C8, B8, A8]
+        result = move_generator.sliding_moves(queen, H8)
+        expect(result).to eq(queen_moves)
+      end
+
+      it "returns all moves from the left edge of the board" do
+        queen_moves = [A5, A6, A7, A8, B5, C6, D7, E8, B4, C4, D4, E4, F4, G4,
+                       H4, B3, C2, D1, A3, A2, A1]
+        result = move_generator.sliding_moves(queen, A4)
+        expect(result).to eq(queen_moves)
+      end
+
+      it "returns all moves from the right edge of the board" do
+        queen_moves = [H5, H6, H7, H8, H3, H2, H1, G3, F2, E1, G4, F4, E4, D4,
+                       C4, B4, A4, G5, F6, E7, D8]
+        result = move_generator.sliding_moves(queen, H4)
+        expect(result).to eq(queen_moves)
+      end
+
+      it "returns all moves from the top edge of the board" do
+        queen_moves = [F8, G8, H8, F7, G6, H5, E7, E6, E5, E4, E3, E2, E1, D7,
+                       C6, B5, A4, D8, C8, B8, A8]
+        result = move_generator.sliding_moves(queen, E8)
+        expect(result).to eq(queen_moves)
+      end
+
+      it "returns all moves from the bottom edge of the board" do
+        queen_moves = [E2, E3, E4, E5, E6, E7, E8, F2, G3, H4, F1, G1, H1, D1,
+                       C1, B1, A1, D2, C3, B4, A5]
+        result = move_generator.sliding_moves(queen, E1)
+        expect(result).to eq(queen_moves)
+      end
+    end
+
+    context "when moving a Rook" do
+      let(:rook) { Rook.new(:white) }
+      let(:squares) { Array.new(128) }
+
+      before do
+        allow(board).to receive(:squares).and_return(squares)
+      end
+
+      it "returns all moves from the middle of the board" do
+        rook_moves = [E5, E6, E7, E8, F4, G4, H4, E3, E2, E1, D4, C4, B4, A4]
+        result = move_generator.sliding_moves(rook, E4)
+        expect(result).to eq(rook_moves)
+      end
+
+      it "returns all moves from the bottom-left-corner of the board" do
+        rook_moves = [A2, A3, A4, A5, A6, A7, A8, B1, C1, D1, E1, F1, G1, H1]
+        result = move_generator.sliding_moves(rook, A1)
+        expect(result).to eq(rook_moves)
+      end
+
+      it "returns all moves from the bottom-right corner of the board" do
+        rook_moves = [H2, H3, H4, H5, H6, H7, H8, G1, F1, E1, D1, C1, B1, A1]
+        result = move_generator.sliding_moves(rook, H1)
+        expect(result).to eq(rook_moves)
+      end
+
+      it "returns all moves from the top-left corner of the board" do
+        rook_moves = [B8, C8, D8, E8, F8, G8, H8, A7, A6, A5, A4, A3, A2, A1]
+        result = move_generator.sliding_moves(rook, A8)
+        expect(result).to eq(rook_moves)
+      end
+
+      it "returns all moves from the top-right corner of the board" do
+        rook_moves = [H7, H6, H5, H4, H3, H2, H1, G8, F8, E8, D8, C8, B8, A8]
+        result = move_generator.sliding_moves(rook, H8)
+        expect(result).to eq(rook_moves)
+      end
+
+      it "returns all moves from the left edge of the board" do
+        rook_moves = [A5, A6, A7, A8, B4, C4, D4, E4, F4, G4, H4, A3, A2, A1]
+        result = move_generator.sliding_moves(rook, A4)
+        expect(result).to eq(rook_moves)
+      end
+
+      it "returns all moves from the right edge of the board" do
+        rook_moves = [H5, H6, H7, H8, H3, H2, H1, G4, F4, E4, D4, C4, B4, A4]
+        result = move_generator.sliding_moves(rook, H4)
+        expect(result).to eq(rook_moves)
+      end
+
+      it "returns all moves from the top edge of the board" do
+        rook_moves = [F8, G8, H8, E7, E6, E5, E4, E3, E2, E1, D8, C8, B8, A8]
+        result = move_generator.sliding_moves(rook, E8)
+        expect(result).to eq(rook_moves)
+      end
+
+      it "returns all moves from the bottom edge of the board" do
+        rook_moves = [E2, E3, E4, E5, E6, E7, E8, F1, G1, H1, D1, C1, B1, A1]
+        result = move_generator.sliding_moves(rook, E1)
+        expect(result).to eq(rook_moves)
+      end
+    end
+
+    context "when moving a Bishop" do
+      let(:bishop) { Bishop.new(:white) }
+      let(:squares) { Array.new(128) }
+
+      before do
+        allow(board).to receive(:squares).and_return(squares)
+      end
+
+      it "returns all moves from the middle of the board" do
+        bishop_moves = [F5, G6, H7, F3, G2, H1, D3, C2, B1, D5, C6, B7, A8]
+        result = move_generator.sliding_moves(bishop, E4)
+        expect(result).to eq(bishop_moves)
+      end
+
+      it "returns all moves from the bottom-left-corner of the board" do
+        bishop_moves = [B2, C3, D4, E5, F6, G7, H8]
+        result = move_generator.sliding_moves(bishop, A1)
+        expect(result).to eq(bishop_moves)
+      end
+
+      it "returns all moves from the bottom-right corner of the board" do
+        bishop_moves = [G2, F3, E4, D5, C6, B7, A8]
+        result = move_generator.sliding_moves(bishop, H1)
+        expect(result).to eq(bishop_moves)
+      end
+
+      it "returns all moves from the top-left corner of the board" do
+        bishop_moves = [B7, C6, D5, E4, F3, G2, H1]
+        result = move_generator.sliding_moves(bishop, A8)
+        expect(result).to eq(bishop_moves)
+      end
+
+      it "returns all moves from the top-right corner of the board" do
+        bishop_moves = [G7, F6, E5, D4, C3, B2, A1]
+        result = move_generator.sliding_moves(bishop, H8)
+        expect(result).to eq(bishop_moves)
+      end
+
+      it "returns all moves from the left edge of the board" do
+        bishop_moves = [B5, C6, D7, E8, B3, C2, D1]
+        result = move_generator.sliding_moves(bishop, A4)
+        expect(result).to eq(bishop_moves)
+      end
+
+      it "returns all moves from the right edge of the board" do
+        bishop_moves = [G3, F2, E1, G5, F6, E7, D8]
+        result = move_generator.sliding_moves(bishop, H4)
+        expect(result).to eq(bishop_moves)
+      end
+
+      it "returns all moves from the top edge of the board" do
+        bishop_moves = [F7, G6, H5, D7, C6, B5, A4]
+        result = move_generator.sliding_moves(bishop, E8)
+        expect(result).to eq(bishop_moves)
+      end
+
+      it "returns all moves from the bottom edge of the board" do
+        bishop_moves = [F2, G3, H4, D2, C3, B4, A5]
+        result = move_generator.sliding_moves(bishop, E1)
+        expect(result).to eq(bishop_moves)
+      end
+    end
+
+    context "when a piece is surrounded by enemy pieces" do
+      let(:queen) { Queen.new(:white) }
+      let(:squares) { Array.new(128) { Pawn.new(:black) } }
+
+      before do
+        allow(board).to receive(:squares).and_return(squares)
+        squares[E4] = queen
+      end
+
+      it "returns all attackable enemy-occupied squares" do
+        queen_moves = [E5, F5, F4, F3, E3, D3, D4, D5]
+        result = move_generator.non_sliding_moves(queen, E4)
+        expect(result).to eq(queen_moves)
+      end
+    end
+
+    context "when a piece is surrounded by ally pieces" do
+      let(:queen) { Queen.new(:white) }
+      let(:squares) { Array.new(128) { Pawn.new(:white) } }
+
+      before do
+        allow(board).to receive(:squares).and_return(squares)
+        squares[E4] = queen
+      end
+
+      it "does not return any ally-occupied squares" do
+        queen_moves = []
+        result = move_generator.non_sliding_moves(queen, E4)
+        expect(result).to eq(queen_moves)
+      end
+    end
+  end
+
+  describe "#non_sliding_moves" do
     context "when moving a King" do
       let(:king) { King.new(:white) }
-      let(:squares) { Array.new(64) }
+      let(:squares) { Array.new(128) }
 
       before do
         allow(board).to receive(:squares).and_return(squares)
@@ -81,7 +313,7 @@ describe MoveGenerator do
 
     context "when moving a Knight" do
       let(:knight) { Knight.new(:white) }
-      let(:squares) { Array.new(64) }
+      let(:squares) { Array.new(128) }
 
       before do
         allow(board).to receive(:squares).and_return(squares)
@@ -151,7 +383,7 @@ describe MoveGenerator do
         squares[E4] = king
       end
 
-      it "returns all enemy-occupied squares" do
+      it "returns all attackable enemy-occupied squares" do
         king_moves = [E5, F5, F4, F3, E3, D3, D4, D5]
         result = move_generator.non_sliding_moves(king, E4)
         expect(result).to eq(king_moves)

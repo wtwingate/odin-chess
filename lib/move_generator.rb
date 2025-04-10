@@ -31,7 +31,13 @@ class MoveGenerator
   end
 
   def sliding_moves(piece, index)
-    # TODO
+    piece.moveset.each_with_object([]) do |delta, next_indexes|
+      next_index = index + delta
+      while on_the_board?(next_index) && can_target?(piece, next_index)
+        next_indexes << next_index
+        next_index += delta
+      end
+    end
   end
 
   def non_sliding_moves(piece, index)
