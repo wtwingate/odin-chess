@@ -406,4 +406,240 @@ describe MoveGenerator do
       end
     end
   end
+
+  describe "#pawn_moves" do
+    let(:white_pawn) { Pawn.new(:white) }
+    let(:black_pawn) { Pawn.new(:black) }
+    let(:squares) { Array.new(128) }
+
+    before do
+      allow(board).to receive_messages(squares: squares, en_passant: nil)
+    end
+
+    context "when a white Pawn is in its initial position" do
+      it "can move up two squares" do
+        white_pawn_moves = [E3, E4]
+        result = move_generator.pawn_moves(white_pawn, E2)
+        expect(result).to eq(white_pawn_moves)
+      end
+    end
+
+    context "when a black Pawn is in its initial position" do
+      it "can move down two squares" do
+        black_pawn_moves = [E6, E5]
+        result = move_generator.pawn_moves(black_pawn, E7)
+        expect(result).to eq(black_pawn_moves)
+      end
+    end
+
+    context "when a white Pawn is not in its initial position" do
+      before do
+        white_pawn.instance_variable_set(:@moved, true)
+      end
+
+      it "can move up one square" do
+        white_pawn_moves = [E5]
+        result = move_generator.pawn_moves(white_pawn, E4)
+        expect(result).to eq(white_pawn_moves)
+      end
+    end
+
+    context "when a black Pawn is not in its initial position" do
+      before do
+        black_pawn.instance_variable_set(:@moved, true)
+      end
+
+      it "can move down one square" do
+        black_pawn_moves = [E4]
+        result = move_generator.pawn_moves(black_pawn, E5)
+        expect(result).to eq(black_pawn_moves)
+      end
+    end
+
+    context "when an unmoved white Pawn has enemies in its attack range" do
+      before do
+        squares[D3] = black_pawn
+        squares[F3] = black_pawn
+      end
+
+      it "can move up two squares or capture its enemies" do
+        white_pawn_moves = [E3, E4, D3, F3]
+        result = move_generator.pawn_moves(white_pawn, E2)
+        expect(result).to eq(white_pawn_moves)
+      end
+    end
+
+    context "when an unmoved black Pawn has enemies in its attack range" do
+      before do
+        squares[D6] = white_pawn
+        squares[F6] = white_pawn
+      end
+
+      it "can move down two squares or capture its enemies" do
+        black_pawn_moves = [E6, E5, D6, F6]
+        result = move_generator.pawn_moves(black_pawn, E7)
+        expect(result).to eq(black_pawn_moves)
+      end
+    end
+
+    context "when a moved white Pawn has enemies in its attack range" do
+      before do
+        white_pawn.instance_variable_set(:@moved, true)
+        squares[D5] = black_pawn
+        squares[F5] = black_pawn
+      end
+
+      it "can move up one square or capture its enemies" do
+        white_pawn_moves = [E5, D5, F5]
+        result = move_generator.pawn_moves(white_pawn, E4)
+        expect(result).to eq(white_pawn_moves)
+      end
+    end
+
+    context "when a moved black Pawn has enemies in its attack range" do
+      before do
+        black_pawn.instance_variable_set(:@moved, true)
+        squares[D4] = white_pawn
+        squares[F4] = white_pawn
+      end
+
+      it "can move down two squares or capture its enemies" do
+        black_pawn_moves = [E4, D4, F4]
+        result = move_generator.pawn_moves(black_pawn, E5)
+        expect(result).to eq(black_pawn_moves)
+      end
+    end
+
+    context "when a white Pawn is blocked by an ally" do
+      before do
+        squares[E3] = white_pawn
+      end
+
+      it "cannot move up" do
+        white_pawn_moves = []
+        result = move_generator.pawn_moves(white_pawn, E2)
+        expect(result).to eq(white_pawn_moves)
+      end
+    end
+
+    context "when a black Pawn is blocked by an ally" do
+      before do
+        squares[E6] = black_pawn
+      end
+
+      it "cannot move down" do
+        black_pawn_moves = []
+        result = move_generator.pawn_moves(black_pawn, E7)
+        expect(result).to eq(black_pawn_moves)
+      end
+    end
+
+    context "when a white Pawn is blocked by an enemy" do
+      before do
+        squares[E3] = black_pawn
+      end
+
+      it "cannot move up" do
+        white_pawn_moves = []
+        result = move_generator.pawn_moves(white_pawn, E2)
+        expect(result).to eq(white_pawn_moves)
+      end
+    end
+
+    context "when a black Pawn is blocked by an enemy" do
+      before do
+        squares[E6] = white_pawn
+      end
+
+      it "cannot move down" do
+        black_pawn_moves = []
+        result = move_generator.pawn_moves(black_pawn, E7)
+        expect(result).to eq(black_pawn_moves)
+      end
+    end
+
+    context "when a white Pawn is blocked but has enemies in attack range" do
+      before do
+        squares[E3] = white_pawn
+        squares[D3] = black_pawn
+        squares[F3] = black_pawn
+      end
+
+      it "cannot move up but can capture its enemies" do
+        white_pawn_moves = [D3, F3]
+        result = move_generator.pawn_moves(white_pawn, E2)
+        expect(result).to eq(white_pawn_moves)
+      end
+    end
+
+    context "when a black Pawn is blocked but has enemies in attack range" do
+      before do
+        squares[E6] = black_pawn
+        squares[D6] = white_pawn
+        squares[F6] = white_pawn
+      end
+
+      it "cannot move down but can capture its enemies" do
+        black_pawn_moves = [D6, F6]
+        result = move_generator.pawn_moves(black_pawn, E7)
+        expect(result).to eq(black_pawn_moves)
+      end
+    end
+
+    context "when a white Pawn is next to an en passant target" do
+      before do
+        allow(board).to receive(:en_passant).and_return(D6)
+        white_pawn.instance_variable_set(:@moved, true)
+        squares[D5] = black_pawn
+      end
+
+      it "can capture the en passant target" do
+        white_pawn_moves = [E6, D6]
+        result = move_generator.pawn_moves(white_pawn, E5)
+        expect(result).to eq(white_pawn_moves)
+      end
+    end
+
+    context "when a black Pawn is next to an en passant target" do
+      before do
+        allow(board).to receive(:en_passant).and_return(D3)
+        black_pawn.instance_variable_set(:@moved, true)
+        squares[D4] = white_pawn
+      end
+
+      it "can capture the en passant target" do
+        black_pawn_moves = [E3, D3]
+        result = move_generator.pawn_moves(black_pawn, E4)
+        expect(result).to eq(black_pawn_moves)
+      end
+    end
+
+    context "when a white Pawn is not next to an en passant target" do
+      before do
+        allow(board).to receive(:en_passant).and_return(C6)
+        white_pawn.instance_variable_set(:@moved, true)
+        squares[C5] = black_pawn
+      end
+
+      it "cannot capture the en passant target" do
+        white_pawn_moves = [E6]
+        result = move_generator.pawn_moves(white_pawn, E5)
+        expect(result).to eq(white_pawn_moves)
+      end
+    end
+
+    context "when a black Pawn is not next to an en passant target" do
+      before do
+        allow(board).to receive(:en_passant).and_return(C3)
+        black_pawn.instance_variable_set(:@moved, true)
+        squares[C4] = white_pawn
+      end
+
+      it "cannot capture the en passant target" do
+        black_pawn_moves = [E3]
+        result = move_generator.pawn_moves(black_pawn, E4)
+        expect(result).to eq(black_pawn_moves)
+      end
+    end
+  end
 end

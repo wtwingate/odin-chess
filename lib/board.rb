@@ -54,10 +54,11 @@ require "colorize"
 # iterate through all the squares and calculate moves a bit more
 # efficiently, at the cost of a little mental overhead.
 class Board
-  attr_reader :squares
+  attr_reader :squares, :en_passant
 
   def initialize
     @squares = initial_position
+    @en_passant = nil
   end
 
   def ascii_print
