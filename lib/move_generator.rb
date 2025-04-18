@@ -7,54 +7,50 @@ class MoveGenerator
     @board = board
   end
 
-  def pseudo_legal_moves
+  def pseudo_legal_moves(color)
     moves = {}
 
-    @board.squares.each_with_index do |piece, position|
-      next if piece.nil?
+    @board.squares.each_with_index do |piece, index|
+      next unless piece && piece.color == color
 
-      moves[position] = piece_moves(piece, position)
+      moves[index] = piece_moves(piece, index)
     end
 
     moves
   end
 
-  def piece_moves(piece, position)
+  def piece_moves(piece, index)
     case piece
     when Queen, Rook, Bishop
-      sliding_moves(piece, position)
+      sliding_moves(piece, index)
     when King, Knight
-      non_sliding_moves(piece, position)
+      non_sliding_moves(piece, index)
     when Pawn
-      pawn_moves(piece, position)
+      pawn_moves(piece, index)
     end
   end
 
-  def sliding_moves(piece, position)
+  def sliding_moves(piece, index)
     piece.moveset.each_with_object([]) do |delta, moves|
-      next_position = position + delta
-      while targetable_square?(piece, next_position)
-        moves << next_position
-        break unless empty_square?(next_position)
+      next_index = index + delta
+      while targetable_square?(piece, next_index)
+        moves << next_index
+        break unless empty_square?(next_index)
 
-        next_position += delta
+        next_index += delta
       end
     end
   end
 
-  def non_sliding_moves(piece, position)
+  def non_sliding_moves(piece, index)
     piece.moveset.each_with_object([]) do |delta, moves|
-      next_position = position + delta
-      moves << next_position if targetable_square?(piece, next_position)
+      next_index = index + delta
+      moves << next_index if targetable_square?(piece, next_index)
     end
   end
 
-  def pawn_moves(piece, position)
-    moves = []
-    moves += pawn_steps(piece, position)
-    moves += pawn_attacks(piece, position)
-
-    moves
+  def pawn_moves(pawn, index)
+    pawn_pushes(pawn, index) + pawn_attacks(pawn, index)
   end
 
   private
@@ -66,53 +62,53 @@ class MoveGenerator
     index.nobits?(0x88)
   end
 
-  def targetable_square?(piece, position)
-    on_the_board?(position) &&
-      (empty_square?(position) || enemy_square?(piece, position))
+  def targetable_square?(piece, index)
+    on_the_board?(index) &&
+      (empty_square?(index) || enemy_square?(piece, index))
   end
 
-  def empty_square?(position)
-    @board.squares[position].nil?
+  def empty_square?(index)
+    @board.squares[index].nil?
   end
 
-  def ally_square?(piece, position)
-    target = @board.squares[position]
+  def ally_square?(piece, index)
+    target = @board.squares[index]
     return false unless target
 
     target.color != piece.color
   end
 
-  def enemy_square?(piece, position)
-    target = @board.squares[position]
+  def enemy_square?(piece, index)
+    target = @board.squares[index]
     return false unless target
 
     target.color != piece.color
   end
 
-  def en_passant_square?(position)
-    position == @board.en_passant
+  def en_passant_square?(index)
+    index == @board.en_passant
   end
 
-  def pawn_steps(piece, position)
+  def pawn_pushes(piece, index)
     steps = []
 
-    next_position = position + piece.moveset.first
-    steps << next_position if empty_square?(next_position)
+    next_index = index + piece.moveset.first
+    steps << next_index if empty_square?(next_index)
 
     # steps.empty? means the pawn is blocked
     return steps if piece.moved || steps.empty?
 
-    next_position += piece.moveset.first
-    steps << next_position if empty_square?(next_position)
+    next_index += piece.moveset.first
+    steps << next_index if empty_square?(next_index)
 
     steps
   end
 
-  def pawn_attacks(piece, position)
+  def pawn_attacks(piece, index)
     attacks = []
 
-    left_target = position + piece.moveset.first - 1
-    right_target = position + piece.moveset.first + 1
+    left_target = index + piece.moveset.first - 1
+    right_target = index + piece.moveset.first + 1
 
     if enemy_square?(piece, left_target) || en_passant_square?(left_target)
       attacks << left_target
