@@ -3,7 +3,8 @@
 require "colorize"
 
 # This class represents a chessboard as a one-dimenstional array of
-# squares and provides methods for printing it to the console.
+# squares and provides methods for querying the board state and
+# printing the board in ASCII and Unicode formats.
 #
 # A physical chessboard is composed of 64 squares in an 8x8 grid of
 # ranks (rows) and files (columns). In algebraic chess notation, the
@@ -57,8 +58,28 @@ class Board
   attr_reader :squares, :en_passant
 
   def initialize
-    @squares = initial_position
+    @squares = starting_layout
     @en_passant = nil
+  end
+
+  def in_bounds?(index)
+    index.nobits?(0x88)
+  end
+
+  def empty_square?(index)
+    @squares[index].nil?
+  end
+
+  def ally_square?(index, color)
+    @squares[index]&.color == color
+  end
+
+  def enemy_square?(index, color)
+    @squares[index]&.color != color
+  end
+
+  def targetable_square?(index, color)
+    in_bounds?(index) && (empty_square?(index) || enemy_square?(index, color))
   end
 
   def ascii_print
@@ -85,7 +106,7 @@ class Board
   private
 
   # rubocop: disable Metrics
-  def initial_position
+  def starting_layout
     layout = [
       "R N B Q K B N R . . . . . . . .",
       "P P P P P P P P . . . . . . . .",
@@ -99,20 +120,20 @@ class Board
 
     tokens = layout.flat_map(&:split)
 
-    tokens.map do |token|
+    tokens.each_with_index.map do |token, index|
       case token
-      when "K" then King.new(:white)
-      when "Q" then Queen.new(:white)
-      when "R" then Rook.new(:white)
-      when "B" then Bishop.new(:white)
-      when "N" then Knight.new(:white)
-      when "P" then Pawn.new(:white)
-      when "k" then King.new(:black)
-      when "q" then Queen.new(:black)
-      when "r" then Rook.new(:black)
-      when "b" then Bishop.new(:black)
-      when "n" then Knight.new(:black)
-      when "p" then Pawn.new(:black)
+      when "K" then King.new(:white, index)
+      when "Q" then Queen.new(:white, index)
+      when "R" then Rook.new(:white, index)
+      when "B" then Bishop.new(:white, index)
+      when "N" then Knight.new(:white, index)
+      when "P" then Pawn.new(:white, index)
+      when "k" then King.new(:black, index)
+      when "q" then Queen.new(:black, index)
+      when "r" then Rook.new(:black, index)
+      when "b" then Bishop.new(:black, index)
+      when "n" then Knight.new(:black, index)
+      when "p" then Pawn.new(:black, index)
       end
     end
   end
