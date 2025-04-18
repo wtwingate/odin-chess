@@ -4,8 +4,9 @@ require_relative "piece"
 
 # This class represents the Pawn chess piece.
 class Pawn < Piece
-  def moveset
-    @color == :white ? [0x10] : [-0x10]
+  def initialize(color, square)
+    super
+    @moveset = color == :white ? Deltas::W_PAWN : Deltas::B_PAWN
   end
 
   def ascii

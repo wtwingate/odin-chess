@@ -4,8 +4,9 @@ require_relative "piece"
 
 # This class represents the Queen chess piece.
 class Rook < Piece
-  def moveset
-    [0x10, 0x01, -0x10, -0x01]
+  def initialize(color, square)
+    super
+    @moveset = Deltas::ROOK
   end
 
   def ascii

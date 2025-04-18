@@ -4,8 +4,9 @@ require_relative "piece"
 
 # This class represents the Bishop chess piece.
 class Bishop < Piece
-  def moveset
-    [0x11, -0x0F, -0x11, 0x0F]
+  def initialize(color, square)
+    super
+    @moveset = Deltas::BISHOP
   end
 
   def ascii
