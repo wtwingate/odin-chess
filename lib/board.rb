@@ -2,6 +2,13 @@
 
 require "colorize"
 
+require_relative "bishop"
+require_relative "king"
+require_relative "knight"
+require_relative "pawn"
+require_relative "queen"
+require_relative "rook"
+
 # This class represents a chessboard as a one-dimenstional array of
 # squares and provides methods for querying the board state and
 # printing the board in ASCII and Unicode formats.
@@ -71,11 +78,13 @@ class Board
   end
 
   def ally_square?(index, color)
-    @squares[index]&.color == color
+    piece = @squares[index]
+    piece && piece.color == color
   end
 
   def enemy_square?(index, color)
-    @squares[index]&.color != color
+    piece = @squares[index]
+    piece && piece.color != color
   end
 
   def targetable_square?(index, color)
