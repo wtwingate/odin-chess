@@ -69,6 +69,12 @@ class Board
     @en_passant = nil
   end
 
+  def pieces(color = nil)
+    @squares.select do |piece|
+      piece && (color.nil? || piece.color == color)
+    end
+  end
+
   def in_bounds?(index)
     index.nobits?(0x88)
   end
