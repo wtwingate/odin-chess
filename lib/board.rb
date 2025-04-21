@@ -62,7 +62,7 @@ require_relative "rook"
 # iterate through all the squares and calculate moves a bit more
 # efficiently, at the cost of a little mental overhead.
 class Board
-  attr_reader :squares, :en_passant
+  attr_reader :squares
 
   def initialize
     @squares = starting_layout
@@ -89,6 +89,10 @@ class Board
 
   def targetable_square?(index, color)
     in_bounds?(index) && (empty_square?(index) || enemy_square?(index, color))
+  end
+
+  def en_passant_square?(index)
+    @en_passant == index
   end
 
   def ascii_print

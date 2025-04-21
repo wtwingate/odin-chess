@@ -10,7 +10,7 @@ class Pawn < Piece
   end
 
   def moves(board)
-    push(board) + double_push(board) + capture(board)
+    push(board) + capture(board)
   end
 
   def ascii
@@ -25,20 +25,24 @@ class Pawn < Piece
 
   def push(board)
     target = @square + @moveset[0]
-    board.empty_square?(target) ? [target] : []
+    return [] unless board.empty_square?(target)
+
+    moved? ? [target] : [target] + double_push(board)
   end
 
   def double_push(board)
-    return [] if moved?
-
     target = @square + @moveset[1]
-    board.empty_square?(target) ? [target] : []
+    return [] unless board.empty_square?(target)
+
+    [target]
   end
 
   def capture(board)
     @moveset[2..].each_with_object([]) do |delta, moves|
       target = @square + delta
-      moves << target if board.enemy_square?(target, @color)
+      if board.enemy_square?(target, @color) || board.en_passant_square?(target)
+        moves << target
+      end
     end
   end
 end
