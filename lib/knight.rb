@@ -11,10 +11,10 @@ class Knight < Piece
 
   def moves(board)
     @moveset.each_with_object([]) do |delta, moves|
-      target_square = @square + delta
-      next unless board.targetable_square?(target_square, @color)
+      target = @square + delta
+      next unless board.targetable_square?(target, @color)
 
-      moves << target_square
+      moves << target
     end
   end
 
