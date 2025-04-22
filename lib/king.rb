@@ -11,7 +11,7 @@ class King < Piece
 
   def in_check?(board)
     enemy_color = @color == :white ? :black : :white
-    enemy_pieces = board.pieces(enemy_color)
+    enemy_pieces = board.get_pieces(enemy_color)
     enemy_pieces.any? { |piece| piece.moves(board).include?(square) }
   end
 

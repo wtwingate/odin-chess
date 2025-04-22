@@ -66,13 +66,37 @@ class Board
 
   def initialize
     @squares = starting_layout
+    @white_king = @squares[E1]
+    @black_king = @squares[E8]
     @en_passant = nil
   end
 
-  def pieces(color = nil)
+  def initialize_copy(original)
+    @squares = original.squares
+    @en_passant = original.en_passant
+  end
+
+  def move_piece(from, to)
+    piece = @squares[from]
+
+    # Update the piece state
+    piece.square = to
+    piece.moved = true
+
+    # Update the board state
+    @squares[to] = piece
+    @squares[from] = nil
+    # TODO: update en passant
+  end
+
+  def get_pieces(color = nil)
     @squares.select do |piece|
       piece && (color.nil? || piece.color == color)
     end
+  end
+
+  def get_king(color)
+    color == :white ? @white_king : @black_king
   end
 
   def in_bounds?(index)
