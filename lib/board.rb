@@ -3,6 +3,7 @@
 require "colorize"
 
 require_relative "bishop"
+require_relative "coordinates"
 require_relative "king"
 require_relative "knight"
 require_relative "pawn"
@@ -62,6 +63,8 @@ require_relative "rook"
 # iterate through all the squares and calculate moves a bit more
 # efficiently, at the cost of a little mental overhead.
 class Board
+  include Coordinates
+
   attr_reader :squares
 
   def initialize
