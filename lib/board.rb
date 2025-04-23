@@ -65,12 +65,10 @@ require_relative "rook"
 class Board
   include Coordinates
 
-  attr_reader :squares
+  attr_reader :squares, :en_passant
 
   def initialize
     @squares = starting_layout
-    @white_king = @squares[E1]
-    @black_king = @squares[E8]
     @en_passant = nil
   end
 
@@ -84,7 +82,6 @@ class Board
 
     # Update the piece state
     piece.square = to
-    piece.moved = true
 
     # Update the board state
     @squares[to] = piece
@@ -99,7 +96,7 @@ class Board
   end
 
   def get_king(color)
-    color == :white ? @white_king : @black_king
+    get_pieces(color).find { |piece| piece.is_a?(King) }
   end
 
   def in_bounds?(index)

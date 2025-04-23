@@ -25,8 +25,9 @@ class Chess
     # Check if the move puts the ally king in check
     test_board = @board.clone
     test_board.move_piece(from, to)
-    test_king = test_board.king(piece.color)
-    test_king.in_check?(test_board)
+    test_king = test_board.get_king(piece.color)
+
+    !test_king.in_check?(test_board)
   end
 
   def game_over?
