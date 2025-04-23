@@ -132,5 +132,41 @@ describe King do
         expect(king.moves(board)).to eq(expected_moves)
       end
     end
+
+    context "when a white king is able to castle" do
+      subject(:white_king) { described_class.new(:white, E1) }
+      let(:queenside_rook) { Rook.new(:white, A1) }
+      let(:kingside_rook) { Rook.new(:white, H1) }
+
+      before do
+        squares[E1] = white_king
+        squares[A1] = queenside_rook
+        squares[H1] = kingside_rook
+        board.instance_variable_set(:@squares, squares)
+      end
+
+      it "returns the correct moves" do
+        expected_moves = [E2, F2, F1, D1, D2, C1, G1]
+        expect(white_king.moves(board)).to eq(expected_moves)
+      end
+    end
+
+    context "when a black king is able to castle" do
+      subject(:black_king) { described_class.new(:black, E8) }
+      let(:queenside_rook) { Rook.new(:black, A8) }
+      let(:kingside_rook) { Rook.new(:black, H8) }
+
+      before do
+        squares[E8] = black_king
+        squares[A8] = queenside_rook
+        squares[H8] = kingside_rook
+        board.instance_variable_set(:@squares, squares)
+      end
+
+      it "returns the correct moves" do
+        expected_moves = [F8, F7, E7, D7, D8, C8, G8]
+        expect(black_king.moves(board)).to eq(expected_moves)
+      end
+    end
   end
 end

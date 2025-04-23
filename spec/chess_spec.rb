@@ -64,7 +64,7 @@ describe Chess do
       end
     end
 
-    context "when a pinned piece exposes its king" do
+    context "when a piece exposes its king to check" do
       before do
         squares[A1] = white_king
         white_king.square = A1
@@ -82,5 +82,9 @@ describe Chess do
         expect(chess.legal_move?(from, to)).to be false
       end
     end
+  end
+
+  describe "#legal_castle" do
+    # TODO
   end
 end

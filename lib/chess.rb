@@ -22,12 +22,23 @@ class Chess
     piece = @board.squares[from]
     return false unless piece.moves(@board).include?(to)
 
+    return legal_castle?(from, to) if piece.is_a?(King) && (from - to).abs == 2
+
     # Check if the move puts the ally king in check
     test_board = @board.clone
     test_board.move_piece(from, to)
     test_king = test_board.get_king(piece.color)
 
     !test_king.in_check?(test_board)
+  end
+
+  def legal_castle?(from, to)
+    color = @board.squares[from].color
+
+    start, finish = [from, to].sort
+    (start..finish).none? do |square|
+      @board.targeted_square?(square, color)
+    end
   end
 
   def game_over?

@@ -99,6 +99,10 @@ class Board
     get_pieces(color).find { |piece| piece.is_a?(King) }
   end
 
+  def get_rooks(color)
+    get_pieces(color).find_all { |piece| piece.is_a?(Rook) }
+  end
+
   def in_bounds?(index)
     index.nobits?(0x88)
   end
@@ -117,8 +121,22 @@ class Board
     piece && piece.color != color
   end
 
+  def empty_squares_between?(start, finish)
+    if start < finish
+      (start + 1..finish - 1).all? { |index| empty_square?(index) }
+    else
+      (finish + 1..start - 1).all? { |index| empty_square?(index) }
+    end
+  end
+
   def targetable_square?(index, color)
     in_bounds?(index) && (empty_square?(index) || enemy_square?(index, color))
+  end
+
+  def targeted_square?(index, color)
+    enemy_color = color == :white ? :black : :white
+    enemy_pieces = get_pieces(enemy_color)
+    enemy_pieces.any? { |piece| piece.moves(self).include?(index) }
   end
 
   def en_passant_square?(index)

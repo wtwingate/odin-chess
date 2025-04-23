@@ -10,17 +10,33 @@ class King < Piece
   end
 
   def in_check?(board)
-    enemy_color = @color == :white ? :black : :white
-    enemy_pieces = board.get_pieces(enemy_color)
-    enemy_pieces.any? { |piece| piece.moves(board).include?(square) }
+    board.targeted_square?(@square, @color)
   end
 
   def moves(board)
-    @moveset.each_with_object([]) do |delta, moves|
+    moves = []
+
+    @moveset.each do |delta|
       target = @square + delta
       next unless board.targetable_square?(target, @color)
 
       moves << target
+    end
+
+    moves + castling_moves(board)
+  end
+
+  def castling_moves(board)
+    return [] if moved?
+
+    ally_rooks = board.get_rooks(@color)
+
+    ally_rooks.each_with_object([]) do |rook, moves|
+      next if rook.moved?
+      next unless board.empty_squares_between?(@square, rook.square)
+
+      shift = @square < rook.square ? 0x02 : -0x02
+      moves << (@square + shift)
     end
   end
 
@@ -31,4 +47,8 @@ class King < Piece
   def unicode
     @color == :white ? "♔" : "♚"
   end
+
+  private
+
+  def empty_squares_between?(rook); end
 end
