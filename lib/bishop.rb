@@ -4,8 +4,21 @@ require_relative "piece"
 
 # This class represents the Bishop chess piece.
 class Bishop < Piece
-  def moveset
-    [0x11, -0x0F, -0x11, 0x0F]
+  def initialize(color, square)
+    super
+    @moveset = Deltas::BISHOP
+  end
+
+  def moves(board)
+    @moveset.each_with_object([]) do |delta, moves|
+      target = @square + delta
+      while board.targetable_square?(target, @color)
+        moves << target
+        break if board.enemy_square?(target, @color)
+
+        target += delta
+      end
+    end
   end
 
   def ascii

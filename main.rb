@@ -2,6 +2,7 @@
 
 require_relative "lib/board"
 require_relative "lib/coordinates"
+require_relative "lib/deltas"
 require_relative "lib/piece"
 require_relative "lib/king"
 require_relative "lib/queen"

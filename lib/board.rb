@@ -2,8 +2,19 @@
 
 require "colorize"
 
+require_relative "bishop"
+require_relative "coordinates"
+require_relative "king"
+require_relative "knight"
+require_relative "pawn"
+require_relative "queen"
+require_relative "rook"
+
+# rubocop: disable Metrics/ClassLength
+
 # This class represents a chessboard as a one-dimenstional array of
-# squares and provides methods for printing it to the console.
+# squares and provides methods for querying the board state and
+# printing the board in ASCII and Unicode formats.
 #
 # A physical chessboard is composed of 64 squares in an 8x8 grid of
 # ranks (rows) and files (columns). In algebraic chess notation, the
@@ -54,11 +65,84 @@ require "colorize"
 # iterate through all the squares and calculate moves a bit more
 # efficiently, at the cost of a little mental overhead.
 class Board
+  include Coordinates
+
   attr_reader :squares, :en_passant
 
   def initialize
-    @squares = initial_position
+    @squares = starting_layout
     @en_passant = nil
+  end
+
+  def initialize_copy(original)
+    @squares = original.squares
+    @en_passant = original.en_passant
+  end
+
+  def move_piece(from, to)
+    piece = @squares[from]
+
+    # Update the piece state
+    piece.square = to
+
+    # Update the board state
+    @squares[to] = piece
+    @squares[from] = nil
+    # TODO: update en passant
+  end
+
+  def get_pieces(color = nil)
+    @squares.select do |piece|
+      piece && (color.nil? || piece.color == color)
+    end
+  end
+
+  def get_king(color)
+    get_pieces(color).find { |piece| piece.is_a?(King) }
+  end
+
+  def get_rooks(color)
+    get_pieces(color).find_all { |piece| piece.is_a?(Rook) }
+  end
+
+  def in_bounds?(index)
+    index.nobits?(0x88)
+  end
+
+  def empty_square?(index)
+    @squares[index].nil?
+  end
+
+  def ally_square?(index, color)
+    piece = @squares[index]
+    piece && piece.color == color
+  end
+
+  def enemy_square?(index, color)
+    piece = @squares[index]
+    piece && piece.color != color
+  end
+
+  def empty_squares_between?(start, finish)
+    if start < finish
+      (start + 1..finish - 1).all? { |index| empty_square?(index) }
+    else
+      (finish + 1..start - 1).all? { |index| empty_square?(index) }
+    end
+  end
+
+  def targetable_square?(index, color)
+    in_bounds?(index) && (empty_square?(index) || enemy_square?(index, color))
+  end
+
+  def targeted_square?(index, color)
+    enemy_color = color == :white ? :black : :white
+    enemy_pieces = get_pieces(enemy_color)
+    enemy_pieces.any? { |piece| piece.moves(self).include?(index) }
+  end
+
+  def en_passant_square?(index)
+    @en_passant == index
   end
 
   def ascii_print
@@ -85,7 +169,7 @@ class Board
   private
 
   # rubocop: disable Metrics
-  def initial_position
+  def starting_layout
     layout = [
       "R N B Q K B N R . . . . . . . .",
       "P P P P P P P P . . . . . . . .",
@@ -99,20 +183,20 @@ class Board
 
     tokens = layout.flat_map(&:split)
 
-    tokens.map do |token|
+    tokens.each_with_index.map do |token, index|
       case token
-      when "K" then King.new(:white)
-      when "Q" then Queen.new(:white)
-      when "R" then Rook.new(:white)
-      when "B" then Bishop.new(:white)
-      when "N" then Knight.new(:white)
-      when "P" then Pawn.new(:white)
-      when "k" then King.new(:black)
-      when "q" then Queen.new(:black)
-      when "r" then Rook.new(:black)
-      when "b" then Bishop.new(:black)
-      when "n" then Knight.new(:black)
-      when "p" then Pawn.new(:black)
+      when "K" then King.new(:white, index)
+      when "Q" then Queen.new(:white, index)
+      when "R" then Rook.new(:white, index)
+      when "B" then Bishop.new(:white, index)
+      when "N" then Knight.new(:white, index)
+      when "P" then Pawn.new(:white, index)
+      when "k" then King.new(:black, index)
+      when "q" then Queen.new(:black, index)
+      when "r" then Rook.new(:black, index)
+      when "b" then Bishop.new(:black, index)
+      when "n" then Knight.new(:black, index)
+      when "p" then Pawn.new(:black, index)
       end
     end
   end
@@ -122,3 +206,4 @@ class Board
     (rank + file).even? ? :magenta : :white
   end
 end
+# rubocop: enable Metrics/ClassLength
