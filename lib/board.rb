@@ -10,8 +10,6 @@ require_relative "pawn"
 require_relative "queen"
 require_relative "rook"
 
-# rubocop: disable Metrics/ClassLength
-
 # This class represents a chessboard as a one-dimenstional array of
 # squares and provides methods for querying the board state and
 # printing the board in ASCII and Unicode formats.
@@ -97,14 +95,6 @@ class Board
     end
   end
 
-  def get_king(color)
-    get_pieces(color).find { |piece| piece.is_a?(King) }
-  end
-
-  def get_rooks(color)
-    get_pieces(color).find_all { |piece| piece.is_a?(Rook) }
-  end
-
   def in_bounds?(index)
     index.nobits?(0x88)
   end
@@ -123,14 +113,6 @@ class Board
     piece && piece.color != color
   end
 
-  def empty_squares_between?(start, finish)
-    if start < finish
-      (start + 1..finish - 1).all? { |index| empty_square?(index) }
-    else
-      (finish + 1..start - 1).all? { |index| empty_square?(index) }
-    end
-  end
-
   def targetable_square?(index, color)
     in_bounds?(index) && (empty_square?(index) || enemy_square?(index, color))
   end
@@ -145,17 +127,7 @@ class Board
     @en_passant == index
   end
 
-  def ascii_print
-    7.downto(0).each do |rank|
-      0.upto(7).each do |file|
-        piece = @squares[(rank * 16) + file]
-        print "#{piece ? piece.ascii : '.'} "
-      end
-      print "\n"
-    end
-  end
-
-  def unicode_print
+  def display
     7.downto(0).each do |rank|
       0.upto(7).each do |file|
         piece = @squares[(rank * 16) + file]
@@ -206,4 +178,3 @@ class Board
     (rank + file).even? ? :magenta : :white
   end
 end
-# rubocop: enable Metrics/ClassLength

@@ -9,6 +9,8 @@ class Chess
     @board = Board.new
     @color = :white
     @turn = 0
+    @move_turn = 0
+    @capture_turn = 0
   end
 
   def play
@@ -20,19 +22,15 @@ class Chess
   end
 
   def legal_move?(from, to)
-    # Check if the move is a pseudo-legal move
     piece = @board.squares[from]
     return false unless piece
     return false unless piece.moves(@board).include?(to)
 
-    return legal_castle?(from, to) if piece.is_a?(King) && (from - to).abs == 2
-
-    # Check if the move puts the ally king in check
-    test_board = @board.clone
-    test_board.move_piece(from, to)
-    test_king = test_board.get_king(piece.color)
-
-    !test_king.in_check?(test_board)
+    if piece.is_a?(King) && (from - to).abs == 2
+      legal_castle?(from, to)
+    else
+      king_is_safe?(from, to)
+    end
   end
 
   def legal_castle?(from, to)
@@ -94,7 +92,7 @@ class Chess
   end
 
   def fifty_move_rule?
-    # TODO
+    [@move_turn, @capture_turn].min - @turn >= 50
   end
 
   private
@@ -102,6 +100,17 @@ class Chess
   def next_turn
     @color = @color == :white ? :black : :white
     @turn += 1 if @color == :white
+  end
+
+  def king_is_safe?(from, to)
+    test_board = @board.clone
+    test_piece = test_board.squares[from]
+    test_board.move_piece(from, to)
+    test_king = test_board.get_pieces(test_piece.color).find do |piece|
+      piece.is_a?(King)
+    end
+
+    !test_king.in_check?(test_board)
   end
 
   def piece_counts

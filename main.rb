@@ -13,5 +13,4 @@ require_relative "lib/pawn"
 
 board = Board.new
 
-board.ascii_print
-board.unicode_print
+board.display

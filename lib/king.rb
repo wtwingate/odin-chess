@@ -29,11 +29,9 @@ class King < Piece
   def castling_moves(board)
     return [] if moved?
 
-    ally_rooks = board.get_rooks(@color)
-
-    ally_rooks.each_with_object([]) do |rook, moves|
+    ally_rooks(board).each_with_object([]) do |rook, moves|
       next if rook.moved?
-      next unless board.empty_squares_between?(@square, rook.square)
+      next unless empty_squares_between?(board, @square, rook.square)
 
       shift = @square < rook.square ? 0x02 : -0x02
       moves << (@square + shift)
@@ -50,5 +48,17 @@ class King < Piece
 
   private
 
-  def empty_squares_between?(rook); end
+  def ally_rooks(board)
+    board.get_pieces(@color).select do |piece|
+      piece.is_a?(Rook)
+    end
+  end
+
+  def empty_squares_between?(board, start, finish)
+    if start < finish
+      (start + 1..finish - 1).all? { |square| board.empty_square?(square) }
+    else
+      (finish + 1..start - 1).all? { |square| board.empty_square?(square) }
+    end
+  end
 end
