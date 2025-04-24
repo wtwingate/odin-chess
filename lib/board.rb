@@ -68,7 +68,7 @@ class Board
   attr_reader :squares, :en_passant
 
   def initialize
-    @squares = starting_layout
+    @squares = starting_position
     @en_passant = nil
   end
 
@@ -138,25 +138,31 @@ class Board
     end
   end
 
+  def position
+    export_position
+  end
+
   private
 
+  def starting_position
+    position = "RNBQKBNR........" \
+               "PPPPPPPP........" \
+               "................" \
+               "................" \
+               "................" \
+               "................" \
+               "pppppppp........" \
+               "rnbqkbnr........"
+
+    import_position(position)
+  end
+
   # rubocop: disable Metrics
-  def starting_layout
-    layout = [
-      "R N B Q K B N R . . . . . . . .",
-      "P P P P P P P P . . . . . . . .",
-      ". . . . . . . . . . . . . . . .",
-      ". . . . . . . . . . . . . . . .",
-      ". . . . . . . . . . . . . . . .",
-      ". . . . . . . . . . . . . . . .",
-      "p p p p p p p p . . . . . . . .",
-      "r n b q k b n r . . . . . . . ."
-    ]
+  def import_position(position)
+    tokens = position.chars
 
-    tokens = layout.flat_map(&:split)
-
-    tokens.each_with_index.map do |token, index|
-      case token
+    tokens.each_with_index.map do |piece, index|
+      case piece
       when "K" then King.new(:white, index)
       when "Q" then Queen.new(:white, index)
       when "R" then Rook.new(:white, index)
@@ -173,6 +179,10 @@ class Board
     end
   end
   # rubocop: enable Metrics
+
+  def export_position
+    @squares.map { |piece| piece ? piece.ascii : "." }.join
+  end
 
   def square_color(rank, file)
     (rank + file).even? ? :magenta : :white

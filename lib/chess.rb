@@ -2,6 +2,8 @@
 
 require_relative "board"
 
+# rubocop: disable Metrics/ClassLength
+
 # This class is responsible for managing the main gameplay loop and
 # checking for game over conditions.
 class Chess
@@ -9,6 +11,7 @@ class Chess
     @board = Board.new
     @color = :white
     @turn = 0
+    @history = [@board.position]
     @move_turn = 0
     @capture_turn = 0
   end
@@ -19,6 +22,17 @@ class Chess
     end
 
     game_over_message
+  end
+
+  def move_piece(from, to)
+    piece = @board.squares[from]
+    target = @board.squares[to]
+
+    @move_turn = @turn if piece.is_a?(Pawn)
+    @capture_turn = @turn if target
+
+    @board.move_piece(from, to)
+    @history << @board.position
   end
 
   def legal_move?(from, to)
@@ -55,7 +69,7 @@ class Chess
   def stalemate?
     no_legal_moves? ||
       insufficient_material? ||
-      threefold_repition? ||
+      threefold_repitition? ||
       fifty_move_rule?
   end
 
@@ -87,20 +101,19 @@ class Chess
   end
   # rubocop: enable Metrics/MethodLength
 
-  def threefold_repition?
-    # TODO
+  def threefold_repitition?
+    puts @history.tally
   end
 
   def fifty_move_rule?
     [@move_turn, @capture_turn].min - @turn >= 50
   end
 
-  private
-
-  def next_turn
-    @color = @color == :white ? :black : :white
-    @turn += 1 if @color == :white
+  def display
+    @board.display
   end
+
+  private
 
   def king_is_safe?(from, to)
     test_board = @board.clone
@@ -128,7 +141,13 @@ class Chess
     bishops[0].color != bishops[1].color
   end
 
+  def next_turn
+    @color = @color == :white ? :black : :white
+    @turn += 1 if @color == :white
+  end
+
   def game_over_message
     # TODO: display game over message (winner, stalemate, etc.)
   end
 end
+# rubocop: enable Metrics/ClassLength
