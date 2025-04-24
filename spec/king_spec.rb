@@ -135,6 +135,7 @@ describe King do
 
     context "when a white king is able to castle" do
       subject(:white_king) { described_class.new(:white, E1) }
+
       let(:queenside_rook) { Rook.new(:white, A1) }
       let(:kingside_rook) { Rook.new(:white, H1) }
 
@@ -153,6 +154,7 @@ describe King do
 
     context "when a black king is able to castle" do
       subject(:black_king) { described_class.new(:black, E8) }
+
       let(:queenside_rook) { Rook.new(:black, A8) }
       let(:kingside_rook) { Rook.new(:black, H8) }
 

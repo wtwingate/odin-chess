@@ -10,6 +10,8 @@ require_relative "pawn"
 require_relative "queen"
 require_relative "rook"
 
+# rubocop: disable Metrics/ClassLength
+
 # This class represents a chessboard as a one-dimenstional array of
 # squares and provides methods for querying the board state and
 # printing the board in ASCII and Unicode formats.
@@ -204,3 +206,4 @@ class Board
     (rank + file).even? ? :magenta : :white
   end
 end
+# rubocop: enable Metrics/ClassLength

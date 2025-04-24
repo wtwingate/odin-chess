@@ -33,11 +33,11 @@ class Chess
   end
 
   def legal_castle?(from, to)
-    color = @board.squares[from].color
+    king = @board.squares[from]
 
     start, finish = [from, to].sort
     (start..finish).none? do |square|
-      @board.targeted_square?(square, color)
+      @board.targeted_square?(square, king.color)
     end
   end
 
