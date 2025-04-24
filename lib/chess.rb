@@ -44,7 +44,6 @@ class Chess
   end
 
   def game_over?
-    # https://www.chess.com/article/view/how-chess-games-can-end-8-ways-explained
     checkmate? || stalemate?
   end
 
@@ -55,11 +54,8 @@ class Chess
   end
 
   def stalemate?
-    # TODO: check for stalemate conditions
-    # - No legal moves
-    # - Insufficient material
-    # - Threefold repetition
-    # - Fifty-move rule
+    no_legal_moves?(@color) || insufficient_material? ||
+      threefold_repition? || fifty_move_rule?
   end
 
   def no_legal_moves?(color)
@@ -74,11 +70,28 @@ class Chess
     end
   end
 
+  # rubocop: disable Metrics/MethodLength
   def insufficient_material?
-    # king vs king
-    # king + minor vs king
-    # king + minor vs king + minor
-    # king + two knights vs king
+    case piece_counts
+    in { king: 2, **nil },
+       { king: 2, bishop: 1, **nil },
+       { king: 2, knight: 1, **nil },
+       { king: 2, knight: 2, **nil },
+       { king: 2, knight: 1, bishop: 1, **nil }
+      true
+    in { king: 2, bishop: 2, **nil }
+      insufficient_bishops?
+    else false
+    end
+  end
+  # rubocop: enable Metrics/MethodLength
+
+  def threefold_repition?
+    # TODO
+  end
+
+  def fifty_move_rule?
+    # TODO
   end
 
   private
@@ -86,6 +99,21 @@ class Chess
   def next_turn
     @color = @color == :white ? :black : :white
     @turn += 1 if @color == :white
+  end
+
+  def piece_counts
+    pieces = @board.get_pieces
+    pieces.each_with_object(Hash.new(0)) do |piece, counts|
+      counts[piece.class.name.downcase.to_sym] += 1
+    end
+  end
+
+  def insufficient_bishops?
+    bishops = @board.get_pieces.select do |piece|
+      piece.is_a?(Bishop)
+    end
+
+    bishops[0].color != bishops[1].color
   end
 
   def game_over_message
