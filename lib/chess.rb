@@ -22,6 +22,7 @@ class Chess
   def legal_move?(from, to)
     # Check if the move is a pseudo-legal move
     piece = @board.squares[from]
+    return false unless piece
     return false unless piece.moves(@board).include?(to)
 
     return legal_castle?(from, to) if piece.is_a?(King) && (from - to).abs == 2
@@ -50,22 +51,24 @@ class Chess
   def checkmate?
     king = @board.get_king(@color)
 
-    king.in_check?(@board) && no_legal_moves?(@color)
+    king.in_check?(@board) && no_legal_moves?
   end
 
   def stalemate?
-    no_legal_moves?(@color) || insufficient_material? ||
-      threefold_repition? || fifty_move_rule?
+    no_legal_moves? ||
+      insufficient_material? ||
+      threefold_repition? ||
+      fifty_move_rule?
   end
 
-  def no_legal_moves?(color)
-    pieces = @board.get_pieces(color)
+  def no_legal_moves?
+    pieces = @board.get_pieces(@color)
 
     moves = pieces.each_with_object({}) do |piece, acc|
       acc[piece.square] = piece.moves(@board)
     end
 
-    moves.none? do |from, values|
+    moves.all? do |from, values|
       values.none? { |to| legal_move?(from, to) }
     end
   end
@@ -73,10 +76,10 @@ class Chess
   # rubocop: disable Metrics/MethodLength
   def insufficient_material?
     case piece_counts
-    in { king: 2, **nil },
-       { king: 2, bishop: 1, **nil },
-       { king: 2, knight: 1, **nil },
-       { king: 2, knight: 2, **nil },
+    in { king: 2, **nil } |
+       { king: 2, bishop: 1, **nil } |
+       { king: 2, knight: 1, **nil } |
+       { king: 2, knight: 2, **nil } |
        { king: 2, knight: 1, bishop: 1, **nil }
       true
     in { king: 2, bishop: 2, **nil }
