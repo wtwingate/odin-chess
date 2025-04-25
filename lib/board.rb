@@ -128,6 +128,7 @@ class Board
   end
 
   def display
+    puts
     7.downto(0).each do |rank|
       0.upto(7).each do |file|
         piece = @squares[(rank * 16) + file]
@@ -136,6 +137,7 @@ class Board
       end
       print "\n"
     end
+    puts
   end
 
   def position

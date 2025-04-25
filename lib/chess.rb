@@ -11,7 +11,7 @@ class Chess
     @board = Board.new
     @color = :white
     @turn = 0
-    @history = [@board.position]
+    @history = []
     @move_turn = 0
     @capture_turn = 0
   end
@@ -25,6 +25,8 @@ class Chess
   end
 
   def move_piece(from, to)
+    @history << @board.position
+
     piece = @board.squares[from]
     target = @board.squares[to]
 
@@ -32,7 +34,6 @@ class Chess
     @capture_turn = @turn if target
 
     @board.move_piece(from, to)
-    @history << @board.position
   end
 
   def legal_move?(from, to)
@@ -69,7 +70,7 @@ class Chess
   def stalemate?
     no_legal_moves? ||
       insufficient_material? ||
-      threefold_repitition? ||
+      threefold_repetition? ||
       fifty_move_rule?
   end
 
@@ -101,8 +102,14 @@ class Chess
   end
   # rubocop: enable Metrics/MethodLength
 
-  def threefold_repitition?
-    puts @history.tally
+  def threefold_repetition?
+    current_position = @board.position
+    position_count = @history.count do |position|
+      position == current_position
+    end
+
+    # if current position has already occurred twice
+    position_count >= 2
   end
 
   def fifty_move_rule?
