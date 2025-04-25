@@ -39,7 +39,8 @@ class Chess
       case input
       when "help"
         help_message
-      when "quit"
+        next
+      when "quit", "exit"
         exit
       else
         begin
@@ -207,8 +208,34 @@ class Chess
     @turn += 1 if @color == :white
   end
 
+  def winner
+    # We increment the turn (and thus the current player) before we
+    # display the game over message. Thus, the player on the previous
+    # turn is the winner.
+    @color == :white ? "Black" : "White"
+  end
+
+  def help_message
+    puts
+    puts "Enter moves using coordinate-only algebraic notation"
+    puts "(with or without a separating dash), for example:"
+    puts "'e2e4' 'e2-e4' 'E2E4' 'E2-E4'"
+    puts
+    puts "'help' - displays this message"
+    puts "'quit' - quits the game"
+    puts
+    puts "Press <Enter> to continue"
+    gets
+  end
+
   def game_over_message
-    "Game over!"
+    display
+
+    if checkmate?
+      puts "Checkmate! #{winner} wins!"
+    else
+      puts "It's a draw."
+    end
   end
 end
 # rubocop: enable Metrics/ClassLength

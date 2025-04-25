@@ -73,7 +73,7 @@ class Board
   end
 
   def initialize_copy(original)
-    @squares = original.squares.clone
+    @squares = original.squares.map(&:clone)
     @en_passant = original.en_passant
   end
 
@@ -127,9 +127,11 @@ class Board
     @en_passant == index
   end
 
+  # rubocop: disable Metrics
   def display
     puts
     7.downto(0).each do |rank|
+      print "#{rank + 1} "
       0.upto(7).each do |file|
         piece = @squares[(rank * 16) + file]
         print "#{piece ? piece.unicode : ' '} "
@@ -137,8 +139,10 @@ class Board
       end
       print "\n"
     end
+    puts "  a b c d e f g h"
     puts
   end
+  # rubocop: enable Metrics
 
   def position
     export_position
