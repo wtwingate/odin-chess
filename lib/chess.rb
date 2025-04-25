@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
 require_relative "board"
+require_relative "coordinates"
 
 # rubocop: disable Metrics/ClassLength
 
 # This class is responsible for managing the main gameplay loop and
 # checking for game over conditions.
 class Chess
+  include Coordinates
+
   def initialize
     @board = Board.new
     @color = :white
@@ -18,10 +21,54 @@ class Chess
 
   def play
     until game_over?
-      # TODO: main gameplay loop
+      display
+      from, to = player_input
+      move_piece(from, to)
+      next_turn
     end
 
     game_over_message
+  end
+
+  # rubocop: disable Metrics/MethodLength
+  def player_input
+    loop do
+      print prompt
+      input = gets.chomp.downcase
+
+      case input
+      when "help"
+        help_message
+      when "quit"
+        exit
+      else
+        begin
+          from, to = validate_input(input)
+        rescue StandardError
+          puts "Invalid input"
+          next
+        end
+      end
+
+      return from, to if legal_move?(from, to)
+
+      puts "Illegal move"
+    end
+  end
+  # rubocop: enable Metrics/MethodLength
+
+  def validate_input(input)
+    # expects algebraic notation in the form of "<from>-<to>"
+    # e.g. e2-e4, e2e4
+    regex = /([a-h][1-8])-?([a-h][1-8])/
+    match = regex.match(input)
+
+    raise StandardError unless match
+
+    match.captures.map do |capture|
+      coordinate = capture.upcase.to_sym
+      Coordinates.const_get(coordinate)
+    end
   end
 
   def move_piece(from, to)
@@ -62,7 +109,9 @@ class Chess
   end
 
   def checkmate?
-    king = @board.get_king(@color)
+    king = @board.get_pieces(@color).find do |piece|
+      piece.is_a?(King)
+    end
 
     king.in_check?(@board) && no_legal_moves?
   end
@@ -122,6 +171,11 @@ class Chess
 
   private
 
+  def prompt
+    player = @color == :white ? "White" : "Black"
+    "#{@turn + 1}) #{player}: "
+  end
+
   def king_is_safe?(from, to)
     test_board = @board.clone
     test_piece = test_board.squares[from]
@@ -154,7 +208,7 @@ class Chess
   end
 
   def game_over_message
-    # TODO: display game over message (winner, stalemate, etc.)
+    "Game over!"
   end
 end
 # rubocop: enable Metrics/ClassLength

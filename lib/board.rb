@@ -73,7 +73,7 @@ class Board
   end
 
   def initialize_copy(original)
-    @squares = original.squares
+    @squares = original.squares.clone
     @en_passant = original.en_passant
   end
 
