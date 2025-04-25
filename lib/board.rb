@@ -10,6 +10,8 @@ require_relative "pawn"
 require_relative "queen"
 require_relative "rook"
 
+# rubocop: disable Metrics/ClassLength
+
 # This class represents a chessboard as a one-dimenstional array of
 # squares and provides methods for querying the board state and
 # printing the board in ASCII and Unicode formats.
@@ -69,7 +71,7 @@ class Board
 
   def initialize
     @squares = starting_position
-    @en_passant = nil
+    @en_passant = nil # [passed_square, pawn_square]
   end
 
   def initialize_copy(original)
@@ -77,7 +79,7 @@ class Board
     @en_passant = original.en_passant
   end
 
-  def move_piece(from, to)
+  def move_piece(from, to, promotion = nil)
     piece = @squares[from]
 
     # Update the piece state
@@ -86,7 +88,9 @@ class Board
     # Update the board state
     @squares[to] = piece
     @squares[from] = nil
-    # TODO: update en passant
+    update_en_passant(from, to)
+
+    promote_pawn(piece, promotion) if promotion
   end
 
   def get_pieces(color = nil)
@@ -124,7 +128,8 @@ class Board
   end
 
   def en_passant_square?(index)
-    @en_passant == index
+    passed_square, = @en_passant
+    index == passed_square
   end
 
   # rubocop: disable Metrics
@@ -149,6 +154,48 @@ class Board
   end
 
   private
+
+  # rubocop: disable Metrics/MethodLength
+  def update_en_passant(from, to)
+    # pawn double push
+    piece = @squares[to]
+    diff = (from - to).abs
+    if piece.is_a?(Pawn) && diff == 0x20
+      passed_square = (from + to) / 2
+      @en_passant = [passed_square, to]
+      return
+    end
+
+    # en passant capture
+    passed_square, pawn_square = @en_passant
+    if passed_square == to
+      @squares[pawn_square] = nil
+      @en_passant = nil
+      return
+    end
+
+    # regular move/capture
+    @en_passant = nil
+  end
+  # rubocop: enable Metrics/MethodLength
+
+  # rubocop: disable Metrics
+  def promote_pawn(pawn, promotion)
+    case promotion
+    when :queen
+      promoted_pawn = Queen.new(pawn.color, pawn.starting_square)
+    when :rook
+      promoted_pawn = Rook.new(pawn.color, pawn.starting_square)
+    when :bishop
+      promoted_pawn = Bishop.new(pawn.color, pawn.starting_square)
+    when :knight
+      promoted_pawn = Knight.new(pawn.color, pawn.starting_square)
+    end
+
+    promoted_pawn.square = pawn.square
+    @squares[pawn.square] = promoted_pawn
+  end
+  # rubocop: enable Metrics
 
   def starting_position
     position = "RNBQKBNR........" \
@@ -194,3 +241,4 @@ class Board
     (rank + file).even? ? :magenta : :white
   end
 end
+# rubocop: enable Metrics/ClassLength

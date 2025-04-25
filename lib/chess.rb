@@ -20,10 +20,12 @@ class Chess
   end
 
   def play
+    # require "debug"; binding.break
     until game_over?
       display
       from, to = player_input
-      move_piece(from, to)
+      promotion = choose_promotion(from, to)
+      move_piece(from, to, promotion)
       next_turn
     end
 
@@ -34,7 +36,7 @@ class Chess
   def player_input
     loop do
       print prompt
-      input = gets.chomp.downcase
+      input = gets.chomp
 
       case input
       when "help"
@@ -59,9 +61,7 @@ class Chess
   # rubocop: enable Metrics/MethodLength
 
   def validate_input(input)
-    # expects algebraic notation in the form of "<from>-<to>"
-    # e.g. e2-e4, e2e4
-    regex = /([a-h][1-8])-?([a-h][1-8])/
+    regex = /([a-hA-H][1-8])-?([a-hA-H][1-8])/
     match = regex.match(input)
 
     raise StandardError unless match
@@ -72,7 +72,40 @@ class Chess
     end
   end
 
-  def move_piece(from, to)
+  # rubocop: disable Metrics
+  def choose_promotion(from, to)
+    return nil unless promotable?(from, to)
+
+    puts "Q = Queen, R = Rook, B = Bishop, N = Knight"
+
+    loop do
+      print "Choose a promotion: "
+      choice = gets.chomp.upcase
+
+      case choice
+      when "Q" then return :queen
+      when "R" then return :rook
+      when "B" then return :bishop
+      when "N" then return :knight
+      else
+        puts "Invalid promotion"
+      end
+    end
+  end
+  # rubocop: enable Metrics
+
+  def promotable?(from, to)
+    piece = @board.squares[from]
+    return false unless piece.is_a?(Pawn)
+
+    if piece.color == :white
+      to.between?(0x70, 0x77)
+    else
+      to.between?(0x00, 0x07)
+    end
+  end
+
+  def move_piece(from, to, promotion = nil)
     @history << @board.position
 
     piece = @board.squares[from]
@@ -81,7 +114,7 @@ class Chess
     @move_turn = @turn if piece.is_a?(Pawn)
     @capture_turn = @turn if target
 
-    @board.move_piece(from, to)
+    @board.move_piece(from, to, promotion)
   end
 
   def legal_move?(from, to)
@@ -215,11 +248,17 @@ class Chess
     @color == :white ? "Black" : "White"
   end
 
+  # rubocop: disable Metrics/MethodLength
   def help_message
     puts
     puts "Enter moves using coordinate-only algebraic notation"
     puts "(with or without a separating dash), for example:"
     puts "'e2e4' 'e2-e4' 'E2E4' 'E2-E4'"
+    puts
+    puts "Castling moves are entered by entering the king's"
+    puts "current and destination coordinates, like so:"
+    puts "'e1g1' - white kingside castle"
+    puts "'e1c1' - white queenside castle"
     puts
     puts "'help' - displays this message"
     puts "'quit' - quits the game"
@@ -227,6 +266,7 @@ class Chess
     puts "Press <Enter> to continue"
     gets
   end
+  # rubocop: enable Metrics/MethodLength
 
   def game_over_message
     display

@@ -186,7 +186,7 @@ describe Pawn do
         white_pawn.square = E5
         squares[D5] = enemy_pawn
         enemy_pawn.square = D5
-        board.instance_variable_set(:@en_passant, D6)
+        board.instance_variable_set(:@en_passant, [D6, D5])
       end
 
       it "returns the correct moves" do
@@ -205,7 +205,7 @@ describe Pawn do
         black_pawn.square = E4
         squares[D4] = enemy_pawn
         enemy_pawn.square = D4
-        board.instance_variable_set(:@en_passant, D3)
+        board.instance_variable_set(:@en_passant, [D3, D4])
       end
 
       it "returns the correct moves" do

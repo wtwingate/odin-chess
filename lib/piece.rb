@@ -5,7 +5,7 @@ require_relative "deltas"
 # This is the base class for the various chess pieces.
 class Piece
   attr_accessor :square
-  attr_reader :color
+  attr_reader :color, :starting_square
 
   def initialize(color, square)
     @color = color
