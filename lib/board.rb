@@ -82,16 +82,39 @@ class Board
   def move_piece(from, to, promotion = nil)
     piece = @squares[from]
 
-    # Update the piece state
-    piece.square = to
+    if castling?(from, to)
+      castling_move(from, to)
+    else
+      @squares[to] = piece
+      @squares[from] = nil
+      piece.square = to
+    end
 
-    # Update the board state
-    @squares[to] = piece
-    @squares[from] = nil
     update_en_passant(from, to)
-
     promote_pawn(piece, promotion) if promotion
   end
+
+  # rubocop: disable Metrics
+  def castling_move(from, to)
+    # get pieces
+    king = @squares[from]
+    rook = @squares[to - 2..to + 2].find do |piece|
+      piece.is_a?(Rook) && !piece.moved?
+    end
+
+    # move king
+    @squares[to] = king
+    @squares[from] = nil
+    king.square = to
+
+    # move rook
+    rook_from = rook.square
+    rook_to = (from + to) / 2
+    @squares[rook_to] = rook
+    @squares[rook_from] = nil
+    rook.square = rook_to
+  end
+  # rubocop: enable Metrics
 
   def get_pieces(color = nil)
     @squares.select do |piece|
@@ -154,6 +177,13 @@ class Board
   end
 
   private
+
+  def castling?(from, to)
+    piece = @squares[from]
+    diff = (from - to).abs
+
+    piece.is_a?(King) && diff == 2
+  end
 
   # rubocop: disable Metrics/MethodLength
   def update_en_passant(from, to)
